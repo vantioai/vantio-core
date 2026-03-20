@@ -1,0 +1,8 @@
+name = "vantio-edge-linter"
+main = "src/index.ts"
+compatibility_date = "2026-03-19"
+
+[vars]
+GCP_FIREWALL_URL = "https://mock-firewall.vantio.com"
+GCP_DLQ_WEBHOOK = "https://mock-dlq.vantio.com"
+VPOI_SECRET_KEY = "VANTIO_STRICT_INIT_KEY_CHANGE_IN_PROD"

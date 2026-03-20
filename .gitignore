@@ -1,0 +1,12 @@
+﻿# Dependencies & Binaries
+node_modules/
+.wrangler/
+dist/
+.terraform/
+
+# State & Secrets
+terraform.tfstate
+terraform.tfstate.backup
+main.tf
+.env
+test-payload.json

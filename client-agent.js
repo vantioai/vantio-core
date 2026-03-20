@@ -1,24 +1,26 @@
-﻿const crypto = require('crypto');
+﻿const VantioLinter = require('vantio-linter');
 
-// 1. Agent's internal intent
-const agentId = 'agent-beta-002';
+const secretSalt = 'VANTIO_ZERO_TRUST_SALT_2026';
+const linter = new VantioLinter(secretSalt);
+
+// [MODIFIED] Appending a live timestamp to guarantee a unique hash every time
+const uniqueRunId = Date.now();
+const agentId = 'agent-delta-' + uniqueRunId; 
 const intentAction = 'CREATE';
 const targetResource = 'gcp_compute_instance';
-const secretSalt = 'VANTIO_ZERO_TRUST_SALT_2026'; // The shared cryptographic secret
 
-// 2. Synthesize the mathematically perfect vPOI token (Vantio Linter logic)
-const payloadString = agentId + ":" + intentAction + ":" + targetResource + ":" + secretSalt;
-const vpoiToken = "vpoi_" + crypto.createHash('sha256').update(payloadString).digest('hex');
+const vpoiToken = linter.generateVPOI(agentId, intentAction, targetResource);
 
 const agentPayload = {
     agent_id: agentId,
     intent_action: intentAction,
     target_resource: targetResource,
     vpoi_token: vpoiToken,
-    payload_data: { instance_type: 'e2-micro', zone: 'us-east1' }
+    payload_data: { instance_type: 'e2-medium', zone: 'us-east1' }
 };
 
-console.log('\n[AGENT] Generated valid vPOI token:', vpoiToken);
+console.log('\n[AGENT] Vantio Linter SDK initialized.');
+console.log('[AGENT] Minted fresh, unique vPOI token:', vpoiToken);
 console.log('[AGENT] Blasting payload at Vantio Firewall (http://localhost:3000)...');
 
 fetch('http://localhost:3000/api/v1/intent', {

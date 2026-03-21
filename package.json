@@ -1,14 +1,21 @@
 {
-  "name": "vantio-monolith",
+  "name": "vantio-control-plane",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Universal Agentic CI/CD & Enterprise State Reversion Engine",
+  "main": "vantio-firewall.js",
   "scripts": {
+    "start": "node vantio-firewall.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "vantio",
+    "control-plane",
+    "ci-cd",
+    "infrastructure",
+    "state-reversion"
+  ],
+  "author": "Vantio Engineering",
+  "license": "UNLICENSED",
   "type": "commonjs",
   "dependencies": {
     "@google-cloud/compute": "^6.9.0",

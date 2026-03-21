@@ -30,7 +30,7 @@
                 <input type="password" id="gcp-token" class="w-full bg-gray-950 border border-gray-700 rounded p-2 text-sm text-white focus:outline-none focus:border-blue-500" placeholder="Paste 'gcloud auth print-identity-token' output here to arm weapons...">
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div class="bg-gray-950 p-4 border border-gray-800 rounded">
                     <p class="text-xs text-gray-400 mb-3">VECTOR 1: INFRASTRUCTURE FORGE</p>
                     <button onclick="deployNode()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 md:py-2 px-4 rounded transition-colors">
@@ -48,6 +48,22 @@
                     </div>
                 </div>
             </div>
+
+            <div class="bg-gray-950 p-4 border border-yellow-800/50 rounded shadow-[0_0_15px_rgba(180,83,9,0.2)]">
+                <div class="flex justify-between items-center mb-3">
+                    <p class="text-xs text-yellow-500 font-bold tracking-widest animate-pulse">SPRINT ZERO: THE CHAOS VECTOR</p>
+                    <p class="text-xs text-gray-400" id="wallet-balance">vPOI BALANCE: Loading...</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button onclick="triggerChaos()" class="w-full bg-red-900/80 hover:bg-red-700 text-white font-bold py-3 md:py-2 px-4 rounded transition-colors border border-red-500">
+                        1. INJECT ROGUE AGENT
+                    </button>
+                    <button onclick="triggerRollback()" class="w-full bg-green-800 hover:bg-green-600 text-white font-bold py-3 md:py-2 px-4 rounded transition-colors border border-green-400">
+                        2. ATOMIC ROLLBACK (-500 vPOI)
+                    </button>
+                </div>
+            </div>
+
         </div>
 
         <div class="bg-gray-900 border border-gray-800 rounded-lg shadow-2xl overflow-x-auto">
@@ -71,20 +87,64 @@
     <script>
         const SUPABASE_URL = 'https://vsfwnebykwyarirhrzjl.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_RNS0fZ4nWZW8TuJOQ7-1VA_aOSPE-W2';
-        const FIREWALL_URL = 'https://vantio-firewall-553375521973.us-central1.run.app/api/v1/intent';
-        
         const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        function generateVPOI(agentId, intentAction, targetResource) {
+        function generateSignature(prefix) {
             const secretSalt = 'VANTIO_ZERO_TRUST_SALT_2026';
-            const payloadStr = agentId + ':' + intentAction + ':' + targetResource + ':' + secretSalt;
-            return 'vpoi_' + CryptoJS.SHA256(payloadStr).toString(CryptoJS.enc.Hex);
+            const payloadStr = prefix + ':' + Date.now() + ':' + secretSalt;
+            return prefix + '_' + CryptoJS.SHA256(payloadStr).toString(CryptoJS.enc.Hex).substring(0, 24);
         }
 
+        async function fetchWalletBalance() {
+            const { data } = await client.from('vantio_wallets').select('vpoi_balance').eq('owner_id', 'admin-local').single();
+            if (data) document.getElementById('wallet-balance').innerText = `vPOI BALANCE: ${data.vpoi_balance}`;
+        }
+
+        // [M&A BRANDING LOGIC] - CHAOS VECTOR
+        async function triggerChaos() {
+            if(!confirm("WARNING: This will deploy a Rogue Agent to destroy the Sandbox database. Proceed?")) return;
+            
+            await client.from('vantio_sandbox_state').delete().neq('resource_id', 'null');
+            
+            await client.from('vantio_agent_ledger').insert([{
+                agent_id: 'vantio-chaos-vector', intent_action: 'CATASTROPHIC_OVERRIDE',
+                target_resource: 'vantio_sandbox_state', vpoi_token: generateSignature('rogue_sig'),
+                payload_data: { "status": "DESTROYED", "error_code": "0xDEADBEEF" }
+            }]);
+            
+            alert("[!] CATASTROPHIC FAILURE: Sandbox Infrastructure offline. Check Ledger.");
+            fetchLedgerTelemetry();
+        }
+
+        // [M&A BRANDING LOGIC] - ATOMIC ROLLBACK
+        async function triggerRollback() {
+            const pristineData = [
+                { resource_id: 'us-central-db-main', status: 'ONLINE', critical_data: { customer_records: 84329, encryption_keys: 'valid', revenue_stream: 'active' } },
+                { resource_id: 'eu-west-auth-node', status: 'ONLINE', critical_data: { active_sessions: 4092, health_check: 'passed' } }
+            ];
+
+            await client.from('vantio_sandbox_state').upsert(pristineData);
+
+            const { data: wallet } = await client.from('vantio_wallets').select('vpoi_balance').eq('owner_id', 'admin-local').single();
+            if (wallet) {
+                await client.from('vantio_wallets').update({ vpoi_balance: wallet.vpoi_balance - 500 }).eq('owner_id', 'admin-local');
+            }
+
+            await client.from('vantio_agent_ledger').insert([{
+                agent_id: 'vantio-atomic-rollback', intent_action: 'STATE_REVERTED',
+                target_resource: 'vantio_sandbox_state', vpoi_token: generateSignature('remedy_sig'),
+                payload_data: { status: "RESTORED", tokens_burned: 500, previous_state: "CATASTROPHIC_OVERRIDE" }
+            }]);
+
+            alert("[+] ROLLBACK SUCCESSFUL: Data restored. 500 vPOI tokens consumed.");
+            fetchLedgerTelemetry();
+            fetchWalletBalance();
+        }
+
+        // [M&A BRANDING LOGIC] - GCP PROXY COMMANDS
         async function blastFirewall(payload) {
             const rawToken = document.getElementById('gcp-token').value;
             const idToken = rawToken.replace(/[^a-zA-Z0-9\-_.]/g, ''); 
-            
             if (!idToken) return alert("[!] SYSTEM LOCKED: You must paste your Google Identity Token to arm the UI.");
 
             try {
@@ -97,20 +157,15 @@
                 if (response.ok) {
                     alert(`[+] KINETIC STRIKE SUCCESS: ${payload.intent_action} command accepted by Cloud Edge!`);
                     fetchLedgerTelemetry(); 
-                } else {
-                    alert(`[!] CLOUD ERROR: Proxy transmission failed. Check terminal.`);
-                }
-            } catch (err) {
-                alert(`[!] CRITICAL ERROR: Fetch failed. Details: ${err.message}`);
-            }
+                } else { alert(`[!] CLOUD ERROR: Proxy transmission failed. Check terminal.`); }
+            } catch (err) { alert(`[!] CRITICAL ERROR: Fetch failed. Details: ${err.message}`); }
         }
 
         async function deployNode() {
-            const agentId = 'ui-commander-' + Date.now();
+            const agentId = 'vantio-infrastructure-forge-' + Date.now().toString().slice(-4);
             const payload = {
                 agent_id: agentId, intent_action: 'CREATE', target_resource: 'gcp_compute_instance',
-                vpoi_token: generateVPOI(agentId, 'CREATE', 'gcp_compute_instance'),
-                payload_data: { instance_type: 'e2-micro', zone: 'us-central1-a' }
+                vpoi_token: generateSignature('vpoi_ui'), payload_data: { instance_type: 'e2-micro', zone: 'us-central1-a' }
             };
             blastFirewall(payload);
         }
@@ -119,11 +174,10 @@
             const target = document.getElementById('target-node').value;
             if (!target) return alert("[!] ERROR: You must specify a target instance name to assassinate.");
             
-            const agentId = 'ui-assassin-' + Date.now();
+            const agentId = 'vantio-kill-switch-' + Date.now().toString().slice(-4);
             const payload = {
                 agent_id: agentId, intent_action: 'DELETE', target_resource: 'gcp_compute_instance',
-                vpoi_token: generateVPOI(agentId, 'DELETE', 'gcp_compute_instance'),
-                payload_data: { instance_name: target, zone: 'us-central1-a' }
+                vpoi_token: generateSignature('vpoi_ui'), payload_data: { instance_name: target, zone: 'us-central1-a' }
             };
             blastFirewall(payload);
             document.getElementById('target-node').value = ''; 
@@ -141,8 +195,8 @@
                 tr.className = 'border-b border-gray-800/50 hover:bg-gray-800 transition-colors duration-150';
                 
                 let actionStyle = 'text-yellow-500 font-bold';
-                if (row.intent_action === 'CREATE') actionStyle = 'text-green-500 bg-green-900/20 px-2 py-1 rounded font-bold';
-                if (row.intent_action === 'DELETE') actionStyle = 'text-red-500 bg-red-900/20 px-2 py-1 rounded font-bold';
+                if (row.intent_action === 'CREATE' || row.intent_action === 'STATE_REVERTED') actionStyle = 'text-green-500 bg-green-900/20 px-2 py-1 rounded font-bold';
+                if (row.intent_action === 'DELETE' || row.intent_action === 'CATASTROPHIC_OVERRIDE') actionStyle = 'text-red-500 bg-red-900/20 px-2 py-1 rounded font-bold';
 
                 tr.innerHTML = `
                     <td class="p-3 md:p-4 text-gray-400">${new Date(row.inserted_at).toLocaleTimeString()}</td>
@@ -156,6 +210,7 @@
         }
 
         fetchLedgerTelemetry();
+        fetchWalletBalance();
         setInterval(fetchLedgerTelemetry, 3000);
     </script>
 </body>

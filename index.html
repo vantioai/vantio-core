@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VANTIO // Mission Control</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</head>
+<body class="bg-gray-950 text-green-400 font-mono p-8 min-h-screen">
+    
+    <div class="max-w-6xl mx-auto">
+        <header class="mb-8 border-b border-gray-800 pb-4 flex justify-between items-end">
+            <div>
+                <h1 class="text-4xl font-bold text-white tracking-widest">VANTIO<span class="text-blue-500">.MONOLITH</span></h1>
+                <p class="text-gray-500 text-sm mt-2">DECENTRALIZED AUTONOMOUS INFRASTRUCTURE LEDGER</p>
+            </div>
+            <div class="text-right">
+                <p class="text-xs text-green-500 animate-pulse">● LIVE TELEMETRY STREAM ONLINE</p>
+                <p class="text-xs text-gray-500 mt-1">REGION: us-central1 (Iowa)</p>
+            </div>
+        </header>
+
+        <div class="bg-gray-900 border border-gray-800 rounded-lg p-6 mb-8 shadow-2xl">
+            <h2 class="text-white font-bold mb-4 tracking-wider border-b border-gray-800 pb-2">COMMAND UPLINK</h2>
+            
+            <div class="mb-4">
+                <label class="block text-xs text-gray-400 mb-1">GOOGLE IDENTITY SKELETON KEY (BEARER TOKEN)</label>
+                <input type="password" id="gcp-token" class="w-full bg-gray-950 border border-gray-700 rounded p-2 text-sm text-white focus:outline-none focus:border-blue-500" placeholder="Paste 'gcloud auth print-identity-token' output here to arm weapons...">
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-gray-950 p-4 border border-gray-800 rounded">
+                    <p class="text-xs text-gray-400 mb-3">VECTOR 1: INFRASTRUCTURE FORGE</p>
+                    <button onclick="deployNode()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded transition-colors">
+                        DEPLOY LIVE NODE
+                    </button>
+                </div>
+                
+                <div class="bg-gray-950 p-4 border border-gray-800 rounded">
+                    <p class="text-xs text-gray-400 mb-3">VECTOR 4: THE KILL SWITCH</p>
+                    <div class="flex gap-2">
+                        <input type="text" id="target-node" class="w-2/3 bg-gray-900 border border-gray-700 rounded p-2 text-sm text-white focus:outline-none focus:border-red-500" placeholder="Target Name (e.g. vantio-node-123)">
+                        <button onclick="assassinateNode()" class="w-1/3 bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-4 rounded transition-colors">
+                            ASSASSINATE
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-gray-900 border border-gray-800 rounded-lg shadow-2xl overflow-hidden">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-950 text-gray-400 text-sm uppercase tracking-wider border-b border-gray-800">
+                        <th class="p-4 font-semibold">Timestamp</th>
+                        <th class="p-4 font-semibold">Agent ID</th>
+                        <th class="p-4 font-semibold">Intent</th>
+                        <th class="p-4 font-semibold">Target Resource</th>
+                        <th class="p-4 font-semibold">vPOI (SHA-256)</th>
+                    </tr>
+                </thead>
+                <tbody id="ledger-body" class="text-sm">
+                    <tr><td colspan="5" class="p-8 text-center text-gray-600">Awaiting Agent Telemetry...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://vsfwnebykwyarirhrzjl.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_RNS0fZ4nWZW8TuJOQ7-1VA_aOSPE-W2';
+        const FIREWALL_URL = 'https://vantio-firewall-553375521973.us-central1.run.app/api/v1/intent';
+        
+        const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        function generateVPOI(agentId, intentAction, targetResource) {
+            const secretSalt = 'VANTIO_ZERO_TRUST_SALT_2026';
+            const payloadStr = agentId + ':' + intentAction + ':' + targetResource + ':' + secretSalt;
+            return 'vpoi_' + CryptoJS.SHA256(payloadStr).toString(CryptoJS.enc.Hex);
+        }
+
+        async function blastFirewall(payload) {
+            const rawToken = document.getElementById('gcp-token').value;
+            const idToken = rawToken.replace(/[^a-zA-Z0-9\-_.]/g, ''); 
+            
+            if (!idToken) return alert("[!] SYSTEM LOCKED: You must paste your Google Identity Token to arm the UI.");
+
+            try {
+                // [UPGRADE]: Routing through our local server proxy to completely evade CORS
+                const response = await fetch('/proxy/intent', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ payload: payload, token: idToken })
+                });
+                
+                if (response.ok) {
+                    alert(`[+] KINETIC STRIKE SUCCESS: ${payload.intent_action} command accepted by Cloud Edge!`);
+                    fetchLedgerTelemetry(); // Force immediate UI refresh
+                } else {
+                    alert(`[!] CLOUD ERROR: Proxy transmission failed. Check terminal.`);
+                }
+            } catch (err) {
+                alert(`[!] CRITICAL ERROR: Fetch failed. Details: ${err.message}`);
+            }
+        }
+
+        async function deployNode() {
+            const agentId = 'ui-commander-' + Date.now();
+            const payload = {
+                agent_id: agentId, intent_action: 'CREATE', target_resource: 'gcp_compute_instance',
+                vpoi_token: generateVPOI(agentId, 'CREATE', 'gcp_compute_instance'),
+                payload_data: { instance_type: 'e2-micro', zone: 'us-central1-a' }
+            };
+            blastFirewall(payload);
+        }
+
+        async function assassinateNode() {
+            const target = document.getElementById('target-node').value;
+            if (!target) return alert("[!] ERROR: You must specify a target instance name to assassinate.");
+            
+            const agentId = 'ui-assassin-' + Date.now();
+            const payload = {
+                agent_id: agentId, intent_action: 'DELETE', target_resource: 'gcp_compute_instance',
+                vpoi_token: generateVPOI(agentId, 'DELETE', 'gcp_compute_instance'),
+                payload_data: { instance_name: target, zone: 'us-central1-a' }
+            };
+            blastFirewall(payload);
+            document.getElementById('target-node').value = ''; // clear input
+        }
+
+        async function fetchLedgerTelemetry() {
+            const { data, error } = await client.from('vantio_agent_ledger').select('*').order('inserted_at', { ascending: false }).limit(10);
+            if (error || !data) return;
+
+            const tbody = document.getElementById('ledger-body');
+            tbody.innerHTML = ''; 
+
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = 'border-b border-gray-800/50 hover:bg-gray-800 transition-colors duration-150';
+                
+                let actionStyle = 'text-yellow-500 font-bold';
+                if (row.intent_action === 'CREATE') actionStyle = 'text-green-500 bg-green-900/20 px-2 py-1 rounded font-bold';
+                if (row.intent_action === 'DELETE') actionStyle = 'text-red-500 bg-red-900/20 px-2 py-1 rounded font-bold';
+
+                tr.innerHTML = `
+                    <td class="p-4 text-gray-400">${new Date(row.inserted_at).toLocaleTimeString()}</td>
+                    <td class="p-4 text-blue-400 font-bold">${row.agent_id}</td>
+                    <td class="p-4"><span class="${actionStyle} text-xs tracking-wider">${row.intent_action}</span></td>
+                    <td class="p-4 text-purple-400">${row.target_resource}</td>
+                    <td class="p-4 text-xs text-gray-500 truncate max-w-xs">${row.vpoi_token}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        fetchLedgerTelemetry();
+        setInterval(fetchLedgerTelemetry, 3000);
+    </script>
+</body>
+</html>

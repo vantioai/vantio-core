@@ -1,23 +1,14 @@
-﻿# 1. Base Image: Lightweight Node.js environment
-FROM node:20-alpine
-
-# 2. Establish the operational directory
+# VANTIO MISSION CONTROL UI & PROXY
+FROM node:18-slim
 WORKDIR /usr/src/app
 
-# 3. Inject dependency manifests
+# Install dependencies
 COPY package*.json ./
+RUN npm install
 
-# 4. Synthesize dependencies (Production only)
-RUN npm ci --only=production
+# Copy the architecture
+COPY . .
 
-# 5. Inject the Vantio ecosystem core logic
-COPY vantio-firewall.js ./
-# (If we were publishing to the public npm registry, we wouldn't need to copy the linter folder, 
-# but for this container, we will simulate the local link by ensuring the logic is present).
-COPY vantio-linter/ ./vantio-linter/
-
-# 6. Expose the Firewall port to the outside world
-EXPOSE 3000
-
-# 7. Ignite the Firewall on container boot
-CMD [ "node", "vantio-firewall.js" ]
+# Boot the Glass Proxy instead of the Firewall
+EXPOSE 8080
+CMD [ "node", "local-proxy.js" ]

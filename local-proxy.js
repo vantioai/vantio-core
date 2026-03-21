@@ -4,7 +4,7 @@ const app = express();
 
 app.use(express.json());
 
-// 1. Host the Glass locally
+// 1. Host the Glass locally and in the cloud
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
@@ -37,4 +37,8 @@ app.post('/proxy/intent', async (req, res) => {
     }
 });
 
-app.listen(3000, () => console.log('\n[+] MISSION CONTROL UPLINK ACTIVE: Open http://localhost:3000 in Chrome\n'));
+// [UPGRADED]: Dynamic port allocation for Google Cloud Run compatibility
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+    console.log(`\n[+] MISSION CONTROL UPLINK ACTIVE: Edge Gateway listening on port ${PORT}\n`);
+});

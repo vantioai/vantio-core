@@ -4,9 +4,14 @@ const app = express();
 
 app.use(express.json());
 
-// 1. Host the Glass locally and in the cloud
+// 1. Host the Vantio Ledger (Main UI)
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// [M&A VANTIO ROUTE] - Host the Public Front Door (Landing Page)
+app.get('/landing', (req, res) => {
+    res.sendFile(path.join(__dirname, 'landing.html'));
 });
 
 // 2. The Server-to-Server Proxy (Bypasses all browser CORS limitations)
@@ -37,8 +42,8 @@ app.post('/proxy/intent', async (req, res) => {
     }
 });
 
-// [UPGRADED]: Dynamic port allocation for Google Cloud Run compatibility
+// [UPGRADED]: Dynamic port allocation for Google Cloud Run / Render compatibility
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
-    console.log(`\n[+] MISSION CONTROL UPLINK ACTIVE: Edge Gateway listening on port ${PORT}\n`);
+    console.log(`\n[+] VANTIO FIREWALL ACTIVE: Edge Gateway listening on port ${PORT}\n`);
 });

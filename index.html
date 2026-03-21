@@ -88,7 +88,6 @@
             if (!idToken) return alert("[!] SYSTEM LOCKED: You must paste your Google Identity Token to arm the UI.");
 
             try {
-                // [UPGRADE]: Routing through our local server proxy to completely evade CORS
                 const response = await fetch('/proxy/intent', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -97,7 +96,7 @@
                 
                 if (response.ok) {
                     alert(`[+] KINETIC STRIKE SUCCESS: ${payload.intent_action} command accepted by Cloud Edge!`);
-                    fetchLedgerTelemetry(); // Force immediate UI refresh
+                    fetchLedgerTelemetry(); 
                 } else {
                     alert(`[!] CLOUD ERROR: Proxy transmission failed. Check terminal.`);
                 }
@@ -127,7 +126,7 @@
                 payload_data: { instance_name: target, zone: 'us-central1-a' }
             };
             blastFirewall(payload);
-            document.getElementById('target-node').value = ''; // clear input
+            document.getElementById('target-node').value = ''; 
         }
 
         async function fetchLedgerTelemetry() {
@@ -143,4 +142,21 @@
                 
                 let actionStyle = 'text-yellow-500 font-bold';
                 if (row.intent_action === 'CREATE') actionStyle = 'text-green-500 bg-green-900/20 px-2 py-1 rounded font-bold';
-                if (
+                if (row.intent_action === 'DELETE') actionStyle = 'text-red-500 bg-red-900/20 px-2 py-1 rounded font-bold';
+
+                tr.innerHTML = `
+                    <td class="p-3 md:p-4 text-gray-400">${new Date(row.inserted_at).toLocaleTimeString()}</td>
+                    <td class="p-3 md:p-4 text-blue-400 font-bold">${row.agent_id}</td>
+                    <td class="p-3 md:p-4"><span class="${actionStyle} text-xs tracking-wider">${row.intent_action}</span></td>
+                    <td class="p-3 md:p-4 text-purple-400">${row.target_resource}</td>
+                    <td class="p-3 md:p-4 text-xs text-gray-500 truncate max-w-xs">${row.vpoi_token}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        fetchLedgerTelemetry();
+        setInterval(fetchLedgerTelemetry, 3000);
+    </script>
+</body>
+</html>

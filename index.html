@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VANTIO // Mission Control</title>
+    <title>VANTIO // The Ledger</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
@@ -13,37 +13,37 @@
     <div class="max-w-6xl mx-auto">
         <header class="mb-6 md:mb-8 border-b border-gray-800 pb-4 flex flex-col md:flex-row justify-between items-start md:items-end gap-4 md:gap-0">
             <div>
-                <h1 class="text-3xl md:text-4xl font-bold text-white tracking-widest">VANTIO<span class="text-blue-500">.MONOLITH</span></h1>
-                <p class="text-gray-500 text-xs md:text-sm mt-2">DECENTRALIZED AUTONOMOUS INFRASTRUCTURE LEDGER</p>
+                <h1 class="text-3xl md:text-4xl font-bold text-white tracking-widest">VANTIO<span class="text-blue-500">.LEDGER</span></h1>
+                <p class="text-gray-500 text-xs md:text-sm mt-2">UNIVERSAL AGENTIC CI/CD & ENTERPRISE STATE REVERSION ENGINE</p>
             </div>
             <div class="md:text-right">
-                <p class="text-xs text-green-500 animate-pulse">● LIVE TELEMETRY STREAM ONLINE</p>
+                <p class="text-xs text-green-500 animate-pulse">● VANTIO LEDGER STREAM ONLINE</p>
                 <p class="text-xs text-gray-500 mt-1">REGION: us-central1 (Iowa)</p>
             </div>
         </header>
 
         <div class="bg-gray-900 border border-gray-800 rounded-lg p-4 md:p-6 mb-8 shadow-2xl">
-            <h2 class="text-white font-bold mb-4 tracking-wider border-b border-gray-800 pb-2">COMMAND UPLINK</h2>
+            <h2 class="text-white font-bold mb-4 tracking-wider border-b border-gray-800 pb-2">VANTIO FIREWALL: COMMAND INTERFACE</h2>
             
             <div class="mb-4">
                 <label class="block text-xs text-gray-400 mb-1">GOOGLE IDENTITY SKELETON KEY (BEARER TOKEN)</label>
-                <input type="password" id="gcp-token" class="w-full bg-gray-950 border border-gray-700 rounded p-2 text-sm text-white focus:outline-none focus:border-blue-500" placeholder="Paste 'gcloud auth print-identity-token' output here to arm weapons...">
+                <input type="password" id="gcp-token" class="w-full bg-gray-950 border border-gray-700 rounded p-2 text-sm text-white focus:outline-none focus:border-blue-500" placeholder="Paste 'gcloud auth print-identity-token' output to authenticate with Firewall...">
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div class="bg-gray-950 p-4 border border-gray-800 rounded">
                     <p class="text-xs text-gray-400 mb-3">VECTOR 1: INFRASTRUCTURE FORGE</p>
                     <button onclick="deployNode()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 md:py-2 px-4 rounded transition-colors">
-                        DEPLOY LIVE NODE
+                        PROVISION ARCHITECTURE
                     </button>
                 </div>
                 
                 <div class="bg-gray-950 p-4 border border-gray-800 rounded">
-                    <p class="text-xs text-gray-400 mb-3">VECTOR 4: THE KILL SWITCH</p>
+                    <p class="text-xs text-gray-400 mb-3">VECTOR 4: FIREWALL KILL-SWITCH</p>
                     <div class="flex flex-col md:flex-row gap-2">
                         <input type="text" id="target-node" class="w-full md:w-2/3 bg-gray-900 border border-gray-700 rounded p-3 md:p-2 text-sm text-white focus:outline-none focus:border-red-500" placeholder="Target Name (e.g. vantio-node-123)">
                         <button onclick="assassinateNode()" class="w-full md:w-1/3 bg-red-600 hover:bg-red-500 text-white font-bold py-3 md:py-2 px-4 rounded transition-colors">
-                            ASSASSINATE
+                            TERMINATE
                         </button>
                     </div>
                 </div>
@@ -67,6 +67,7 @@
         </div>
 
         <div class="bg-gray-900 border border-gray-800 rounded-lg shadow-2xl overflow-x-auto">
+            <h2 class="text-white font-bold p-4 tracking-wider border-b border-gray-800">VANTIO LEDGER (WORM-COMPLIANT TELEMETRY)</h2>
             <table class="w-full text-left border-collapse min-w-[600px]">
                 <thead>
                     <tr class="bg-gray-950 text-gray-400 text-xs md:text-sm uppercase tracking-wider border-b border-gray-800">
@@ -100,7 +101,6 @@
             if (data) document.getElementById('wallet-balance').innerText = `vPOI BALANCE: ${data.vpoi_balance}`;
         }
 
-        // [M&A BRANDING LOGIC] - CHAOS VECTOR
         async function triggerChaos() {
             if(!confirm("WARNING: This will deploy a Rogue Agent to destroy the Sandbox database. Proceed?")) return;
             
@@ -112,11 +112,10 @@
                 payload_data: { "status": "DESTROYED", "error_code": "0xDEADBEEF" }
             }]);
             
-            alert("[!] CATASTROPHIC FAILURE: Sandbox Infrastructure offline. Check Ledger.");
+            alert("[!] CATASTROPHIC FAILURE: Sandbox Infrastructure offline. Check Vantio Ledger.");
             fetchLedgerTelemetry();
         }
 
-        // [M&A BRANDING LOGIC] - ATOMIC ROLLBACK
         async function triggerRollback() {
             const pristineData = [
                 { resource_id: 'us-central-db-main', status: 'ONLINE', critical_data: { customer_records: 84329, encryption_keys: 'valid', revenue_stream: 'active' } },
@@ -136,16 +135,15 @@
                 payload_data: { status: "RESTORED", tokens_burned: 500, previous_state: "CATASTROPHIC_OVERRIDE" }
             }]);
 
-            alert("[+] ROLLBACK SUCCESSFUL: Data restored. 500 vPOI tokens consumed.");
+            alert("[+] STATE REVERSION SUCCESSFUL: Data restored. 500 vPOI tokens consumed.");
             fetchLedgerTelemetry();
             fetchWalletBalance();
         }
 
-        // [M&A BRANDING LOGIC] - GCP PROXY COMMANDS
         async function blastFirewall(payload) {
             const rawToken = document.getElementById('gcp-token').value;
             const idToken = rawToken.replace(/[^a-zA-Z0-9\-_.]/g, ''); 
-            if (!idToken) return alert("[!] SYSTEM LOCKED: You must paste your Google Identity Token to arm the UI.");
+            if (!idToken) return alert("[!] FIREWALL LOCKED: You must paste your Google Identity Token to authenticate.");
 
             try {
                 const response = await fetch('/proxy/intent', {
@@ -155,9 +153,9 @@
                 });
                 
                 if (response.ok) {
-                    alert(`[+] KINETIC STRIKE SUCCESS: ${payload.intent_action} command accepted by Cloud Edge!`);
+                    alert(`[+] KINETIC STRIKE SUCCESS: ${payload.intent_action} command authorized by Vantio Firewall!`);
                     fetchLedgerTelemetry(); 
-                } else { alert(`[!] CLOUD ERROR: Proxy transmission failed. Check terminal.`); }
+                } else { alert(`[!] VANTIO FIREWALL ERROR: Proxy transmission rejected. Check terminal.`); }
             } catch (err) { alert(`[!] CRITICAL ERROR: Fetch failed. Details: ${err.message}`); }
         }
 
@@ -172,7 +170,7 @@
 
         async function assassinateNode() {
             const target = document.getElementById('target-node').value;
-            if (!target) return alert("[!] ERROR: You must specify a target instance name to assassinate.");
+            if (!target) return alert("[!] ERROR: You must specify a target instance name to terminate.");
             
             const agentId = 'vantio-kill-switch-' + Date.now().toString().slice(-4);
             const payload = {

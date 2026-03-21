@@ -77,9 +77,10 @@
         const SUPABASE_KEY = 'sb_publishable_RNS0fZ4nWZW8TuJOQ7-1VA_aOSPE-W2';
         const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        async function joinWaitlist() {
+       async function joinWaitlist() {
             const emailInput = document.getElementById('waitlist-email');
             const statusText = document.getElementById('waitlist-status');
+            const engineContainer = emailInput.parentElement;
             const email = emailInput.value.trim();
 
             if (!email || !email.includes('@')) {
@@ -88,23 +89,44 @@
                 return;
             }
 
-            statusText.innerText = "[-] AUTHENTICATING...";
+            statusText.innerText = "[-] UPLINK SECURED. FORGING KEY VIA WORKSPACE...";
             statusText.className = "text-xs mt-4 h-4 text-center text-yellow-500 animate-pulse";
 
-            const { error } = await client.from('vantio_waitlist').insert([{ email: email }]);
+            // The exact coordinates to your Google Workspace Zero-Touch Engine
+            const WORKSPACE_ENGINE_URL = 'https://script.google.com/macros/s/AKfycbwZllv1T-06vMDf42PRKYtDm3ZQ6IXsODKJdWTSqJOrnOG30rmDsV4IXjJEgC_ygLXB/exec';
 
-            if (error) {
-                if (error.code === '23505') { // Postgres duplicate key error
-                    statusText.innerText = "[+] ALREADY IN QUEUE: AWAIT PROTOCOL INITIATION.";
-                    statusText.className = "text-xs mt-4 h-4 text-center text-blue-400 font-bold";
+            try {
+                const response = await fetch(WORKSPACE_ENGINE_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' }, // Bypasses browser security preflights
+                    body: JSON.stringify({ email: email })
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    const skeletonKey = data.key;
+
+                    // Zero-Touch UI Override: Replace input with their deployment orders
+                    engineContainer.innerHTML = `
+                        <div class="w-full text-left bg-black/50 p-4 border border-green-500/30 rounded-md font-mono text-xs text-green-400">
+                            <p class="text-white mb-2 tracking-wider border-b border-gray-700 pb-2">>> ALPHA CLEARANCE GRANTED <<</p>
+                            <p class="mb-1 text-gray-400">TARGET: <span class="text-white">${email}</span></p>
+                            <p class="mb-3 text-gray-400">SKELETON KEY: <span class="text-blue-400 font-bold select-all">${skeletonKey}</span></p>
+                            <p class="mb-1">> 1. Deployment orders dispatched to your inbox.</p>
+                            <p class="mb-1">> 2. Execute pipeline integration via Vantio Linter.</p>
+                            <p>> 3. Trigger Chaos Vector to verify sub-5s reversion.</p>
+                        </div>
+                    `;
+                    statusText.innerText = "[+] PROVISIONING COMPLETE. CHECK YOUR INBOX.";
+                    statusText.className = "text-xs mt-4 h-4 text-center text-green-500 font-bold";
                 } else {
-                    statusText.innerText = "[!] LEDGER ERROR: " + error.message;
+                    statusText.innerText = "[!] WORKSPACE ERROR: " + data.message;
                     statusText.className = "text-xs mt-4 h-4 text-center text-red-500 font-bold";
                 }
-            } else {
-                statusText.innerText = "[+] CLEARANCE ACCEPTED. SKELETON KEY SECURED.";
-                statusText.className = "text-xs mt-4 h-4 text-center text-green-500 font-bold";
-                emailInput.value = ''; // Clear the input
+            } catch (error) {
+                statusText.innerText = "[!] NETWORK FAILURE: " + error.message;
+                statusText.className = "text-xs mt-4 h-4 text-center text-red-500 font-bold";
             }
         }
     </script>

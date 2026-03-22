@@ -22,6 +22,8 @@ To interact with the Vantio Control Plane, you must authenticate your local envi
    `touch .env`
 4. Open the `.env` file and inject your unique Skeleton Key exactly as follows:
    `VANTIO_SKELETON_KEY=vpoi_sk_YOUR_KEY_HERE`
+5. Execute the Chaos Vector simulation to verify your clearance and test the rollback latency:
+   `node chaos-vector.js`
 
 *Failure to authenticate your local `.env` file will result in the Chaos Vector simulation rejecting your state rollback requests.*
 

@@ -10,6 +10,21 @@ By integrating directly into the deployment pipeline, Vantio monitors infrastruc
 
 
 
+## [!] CLEARANCE PROTOCOL: AUTHENTICATION
+
+To interact with the Vantio Control Plane, you must authenticate your local environment using the Skeleton Key provisioned to you by the Workspace Engine.
+
+1. Clone this repository to your local machine:
+   `git clone https://github.com/VantioAi/vantio-core.git`
+2. Navigate into the secure directory:
+   `cd vantio-core`
+3. Create your local environment variable file:
+   `touch .env`
+4. Open the `.env` file and inject your unique Skeleton Key exactly as follows:
+   `VANTIO_SKELETON_KEY=vpoi_sk_YOUR_KEY_HERE`
+
+*Failure to authenticate your local `.env` file will result in the Chaos Vector simulation rejecting your state rollback requests.*
+
 \---
 
 

@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Universal Agentic CI/CD & Enterprise State Reversion Engine",
   "main": "vantio-firewall.js",
+  "bin": {
+    "vantio": "./bin/vantio.js"
+  },
   "scripts": {
     "start": "node vantio-firewall.js",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -18,8 +21,10 @@
   "license": "UNLICENSED",
   "type": "commonjs",
   "dependencies": {
-    "@google-cloud/compute": "^6.9.0",
+    "@google-cloud/compute": "^4.12.0",
     "@supabase/supabase-js": "^2.99.3",
+    "chalk": "^4.1.2",
+    "commander": "^14.0.3",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
@@ -31,5 +36,13 @@
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "wrangler": "^4.75.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VantioAi/vantio-core.git"
+  },
+  "bugs": {
+    "url": "https://github.com/VantioAi/vantio-core/issues"
+  },
+  "homepage": "https://github.com/VantioAi/vantio-core#readme"
 }
